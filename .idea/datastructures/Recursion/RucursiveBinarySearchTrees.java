@@ -66,7 +66,7 @@ public class BinarySearchTree {
 
         if(value < currentNode.value) {
             return rContains(currentNode.left, value);
-        }　else {
+        }else {
             return rContains(currentNode.right, value);
         }
     }
@@ -92,7 +92,7 @@ public class BinarySearchTree {
 
     public void rInsert(int value) {
         if (root == null) root = new Node(value);
-        rInsert(root, value)
+        rInsert(root, value);
     }
 
 
