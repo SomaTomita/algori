@@ -110,3 +110,51 @@ class Solution:
 # 戻り値:
 # dummy.next を返す（先頭の[0]を除いた[1]から始まるリスト）
 # 結果: [1] -> [1] -> [2] -> [3] -> [4] -> [5]
+
+
+# ------------------------------------------------------------
+
+
+# 別解
+
+
+class Solution:
+    def mergeTwoLists_recursive(self, list1: ListNode, list2: ListNode) -> ListNode:
+        if not list1 and not list2:
+            return None
+        if not list1:
+            return list2
+        if not list2:
+            return list1
+        if list1.val < list2.val:
+            list1.next = self.mergeTwoLists_recursive(list1.next, list2)
+            return list1
+        else:
+            list2.next = self.mergeTwoLists_recursive(list1, list2.next)
+            return list2
+
+
+# 流れ:
+# list1 = [1,2,4], list2 = [1,3,5]
+# list1.val < list2.val なので list1を選択
+# list1.next = self.mergeTwoLists_recursive(list1.next, list2)
+# list1.next = self.mergeTwoLists_recursive([2,4], [1,3,5])
+# list1.next.val < list2.val なので list2を選択
+# list1.next.next = self.mergeTwoLists_recursive([2,4], [3,5])
+# list1.next.next.val < list2.val なので list2を選択
+# list1.next.next.next = self.mergeTwoLists_recursive([2,4], [5])
+# list1.next.next.next.val > list2.val なので list2を選択
+# list1.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
+# list1.next.next.next.next.val > list2.val なので list2を選択
+# list1.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
+# list1.next.next.next.next.next.val > list2.val なので list2を選択
+# list1.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
+# list1.next.next.next.next.next.next.val > list2.val なので list2を選択
+# list1.next.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
+# list1.next.next.next.next.next.next.next.val > list2.val なので list2を選択
+# list1.next.next.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
+# list1.next.next.next.next.next.next.next.next.val > list2.val なので list2を選択
+# list1.next.next.next.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
+# list1.next.next.next.next.next.next.next.next.next.val > list2.val なので list2を選択
+# list1.next.next.next.next.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
+# 出力: [1,1,2,3,4,5]
