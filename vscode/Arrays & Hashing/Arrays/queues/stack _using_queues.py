@@ -121,3 +121,94 @@ stack.append(2)  # [1, 2]
 stack.append(3)  # [1, 2, 3]
 last_in = stack.pop()  # 3を取り出す [1, 2]
 print(f"Last in: {last_in}")  # 3（最後に入れた要素）
+
+
+# ------------------------------------------------------------
+
+# 別解
+
+
+class MyStack_2queues:
+    def __init__(self):
+        self.q1 = deque()
+        self.q2 = deque()
+
+    def push(self, x: int) -> None:
+        self.q2.append(x)
+        while self.q1:
+            first_out = self.q1.popleft()
+            self.q2.append(first_out)
+
+        self.q1, self.q2 = self.q2, self.q1
+
+    def pop(self) -> int:
+        return self.q1.popleft()
+
+    def top(self) -> int:
+        return self.q1[0]
+
+    def empty(self) -> bool:
+        return len(self.q1) == 0
+
+
+myStack_2queues = MyStack_2queues()
+myStack_2queues.push(1)
+myStack_2queues.push(2)
+print(myStack_2queues.top())
+print(myStack_2queues.pop())
+print(myStack_2queues.empty())
+
+# pushの流れ:
+# 初期状態: q1 = deque([]), q2 = deque([])
+# 1. x = 1 を push する
+# 2. q2.append(1) →→ q2 = deque([1])
+# 3. while q1: →→ 条件が False なのでスキップ
+# 4. q1, q2 = q2, q1 →→ q1 = deque([1]), q2 = deque([])
+
+# 1. x = 2 を push する
+# 2. q2.append(2) →→ q2 = deque([2])
+# 3. while q1: →→ 条件が False なのでスキップ
+# 4. q1, q2 = q2, q1 →→ q1 = deque([1]), q2 = deque([2])
+
+# 1. while q1: →→ 条件が True なので実行
+# 2. q2.append(q1.popleft()) →→ q2 = deque([2, 1])
+# 3. q1, q2 = q2, q1 →→ q1 = deque([2, 1]), q2 = deque([])
+# 4. while q1: →→ 条件が False なのでスキップ
+# 5. q1, q2 = q2, q1 →→ q1 = deque([2, 1]), q2 = deque([])
+
+
+# top:
+# 初期状態: q1 = deque([2, 1]), q2 = deque([])
+# q1[0] →→ 2
+
+
+# pop:
+# 初期状態: q1 = deque([2, 1]), q2 = deque([])
+# q1.popleft() →→ 2
+# q1 = deque([1]), q2 = deque([])
+
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+
+
+# スワップの使用例:
+
+# 1. リストの要素のスワップ
+arr = [1, 2, 3]
+arr[0], arr[2] = arr[2], arr[0]  # [3, 2, 1]
+
+# 2. 辞書のキーと値の反転
+dict1 = {"a": 1, "b": 2}
+dict2 = {v: k for k, v in dict1.items()}  # {1: 'a', 2: 'b'}
+
+# 3. 変数の値の入れ替え
+max_val = 10
+min_val = 1
+max_val, min_val = min_val, max_val
+print(max_val, min_val)  # 1, 10
+
+# 4. 3つの値を循環的にスワップ
+x, y, z = 1, 2, 3
+x, y, z = z, x, y
+print(x, y, z)  # 3, 1, 2
