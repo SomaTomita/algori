@@ -64,7 +64,7 @@ print(Solution().countStudents([1, 1, 0, 0], [0, 1, 0, 1]))
 # res = 4
 # sandwich=0:
 #   q[0]=1 != 0 → [1,0,0,1] → cnt=1
-#   q[0]=0 != 0 → [0,0,1,1] → cnt=2
+#   q[0]=1 != 0 → [0,0,1,1] → cnt=2
 #   q[0]=0 == 0 → [0,1,1] → res=3
 # sandwich=1:
 #   q[0]=0 != 1 → [1,1,0] → cnt=1
@@ -96,3 +96,71 @@ print(Solution().countStudents([1, 1, 1, 0, 0, 1], [1, 0, 0, 0, 1, 1]))
 # sandwich=1:
 #   q[0]=1 == 1 → [1] → res=0
 # return 0
+
+# ------------------------------------------------------------
+
+# 別解
+
+from collections import Counter
+
+
+class Solution:
+    def countStudents_freqCnt(self, students: List[int], sandwiches: List[int]) -> int:
+        res = len(students)
+        cnt = Counter(students)
+
+        for s in sandwiches:
+            if cnt[s] > 0:
+                res -= 1
+                cnt[s] -= 1
+            else:
+                break
+
+        return res
+
+
+print(Solution().countStudents_freqCnt([1, 1, 0, 0], [0, 1, 0, 1]))
+# 流れ:
+# students = [1,1,0,0], sandwiches = [0,1,0,1]
+# cnt = Counter(students) → {1: 2, 0: 2}
+# s=0 → cnt[0]=2 > 0 → res=3, cnt={1: 2, 0: 1}
+# s=1 → cnt[1]=2 > 0 → res=2, cnt={1: 1, 0: 1}
+# s=0 → cnt[0]=1 > 0 → res=1, cnt={1: 1, 0: 0}
+# s=1 → cnt[1]=1 > 0 → res=0, cnt={1: 0, 0: 0}
+# return 0
+
+print(Solution().countStudents_freqCnt([1, 1, 1, 0, 0, 1], [1, 0, 0, 0, 1, 1]))
+# 流れ:
+# students = [1,1,1,0,0,1], sandwiches = [1,0,0,0,1,1]
+# cnt = Counter(students) → {1: 4, 0: 2}
+# s=1 → cnt[1]=4 > 0 → res=5, cnt={1: 3, 0: 2}
+# s=0 → cnt[0]=2 > 0 → res=4, cnt={1: 3, 0: 1}
+# s=0 → cnt[0]=1 > 0 → res=3, cnt={1: 3, 0: 0}
+# s=0 → cnt[0]=0 = 0 → return 3（残り3人が食べられない）
+
+
+# ------------------------------------------------------------
+# ------------------------------------------------------------
+
+
+# Python基礎:
+
+# 1. deque（デック）- 両端キュー
+from collections import deque
+
+d = deque([1, 2, 3])
+d.append(4)  # 右端に追加: [1, 2, 3, 4]
+d.appendleft(0)  # 左端に追加: [0, 1, 2, 3, 4]
+d.pop()  # 右端から削除: [0, 1, 2, 3]
+d.popleft()  # 左端から削除: [1, 2, 3]
+# インデックスアクセス: d[0]（先頭）, d[-1]（末尾）
+
+# 2. Counter - 要素の出現回数をカウント
+from collections import Counter
+
+arr = [1, 2, 2, 3, 3, 3, 4, 4]
+cnt = Counter(arr)  # {1: 1, 2: 2, 3: 3, 4: 2}
+print(cnt[1])  # 1（要素1の出現回数）
+print(cnt[4])  # 2（要素4の出現回数）
+print(cnt[5])  # 0（存在しない要素は0）
+cnt[1] -= 1  # カウントを減らす {1: 0, 2: 2, 3: 3, 4: 2}
