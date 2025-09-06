@@ -191,3 +191,84 @@ Step 6: nums[3] = 1 (白色)
 │ 0 │ 1 │ 2 │ 3 │ 4 │ 5 │
 │ 0 │ 0 │ 1 │ 1 │ 2 │ 2 │
 """
+
+
+# ------------------------------------------------------------
+
+
+# 別解
+
+
+class Solution:
+    def sortColorsWithCount(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        count = [0] * 3
+        for num in nums:
+            count[num] += 1
+
+        index = 0
+        for i in range(3):
+            while count[i] > 0:
+                count[i] -= 1
+                nums[index] = i
+                index += 1
+
+
+nums_test = [1, 0, 1, 2]
+Solution().sortColorsWithCount(nums_test)
+print(nums_test)
+
+"""
+流れ:
+nums = [1,0,1,2]
+
+=== Pass 1: Counting Phase ===
+初期: count = [0, 0, 0]
+
+Step 1: num = 1 → count[1]++ → count = [0, 1, 0]
+Step 2: num = 0 → count[0]++ → count = [1, 1, 0] 
+Step 3: num = 1 → count[1]++ → count = [1, 2, 0]
+Step 4: num = 2 → count[2]++ → count = [1, 2, 1]
+
+最終count: [1, 2, 1] = [count0=1, count1=2, count2=1]
+
+=== Pass 2: Reconstruction Phase ===
+初期: nums = [1,0,1,2], index = 0
+
+i=0 (赤色を配置):
+  count[0]=1 > 0 → nums[0]=0, count[0]=0, index=1
+  count[0]=0 なので終了
+  現在: nums=[0,0,1,2], index=1
+
+i=1 (白色を配置):  
+  count[1]=2 > 0 → nums[1]=1, count[1]=1, index=2
+  count[1]=1 > 0 → nums[2]=1, count[1]=0, index=3
+  count[1]=0 なので終了
+  現在: nums=[0,1,1,2], index=3
+
+i=2 (青色を配置):
+  count[2]=1 > 0 → nums[3]=2, count[2]=0, index=4
+  count[2]=0 なので終了
+  現在: nums=[0,1,1,2], index=4
+
+最終結果: [0,1,1,2] ✓
+"""
+
+nums_test = [2, 0, 2, 1, 1, 0]
+Solution().sortColorsWithCount(nums_test)
+print(nums_test)
+
+"""
+Pass 1 - Counting:
+count[2]++ → count[0]++ → count[2]++ → count[1]++ → count[1]++ → count[0]++
+最終count: [2, 2, 2]
+
+Pass 2 - Reconstruction:
+i=0: nums[0]=0, nums[1]=0 → nums=[0,0,2,1,1,0]
+i=1: nums[2]=1, nums[3]=1 → nums=[0,0,1,1,1,0]  
+i=2: nums[4]=2, nums[5]=2 → nums=[0,0,1,1,2,2]
+
+最終結果: [0,0,1,1,2,2] ✓
+"""
