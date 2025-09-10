@@ -55,7 +55,7 @@ Value: │-1 │ 0 │ 2 │ 4 │ 6 │ 8 │
 探索範囲: [-1, 0, 2, 4, 6, 8] (全体)
 │ 0 │ 1 │ 2 │ 3 │ 4 │ 5 │
 │-1 │ 0 │ 2 │ 4 │ 6 │ 8 │
-  L               R
+  L                   R
 
 ========================================
 
@@ -139,4 +139,91 @@ Iteration 4: left=3, right=2
 → while ループ終了
 
 結果: return -1 (見つからない) ✓
+"""
+
+# ------------------------------------------------------------
+
+
+# 別解
+class Solution:
+    def search_recursive(self, nums: List[int], target: int) -> int:
+        def binary_search(left: int, right: int) -> int:
+            if left > right:
+                return -1
+            mid = left + (right - left) // 2
+
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] < target:
+                return binary_search(mid + 1, right)
+            else:
+                return binary_search(left, mid - 1)
+
+        return binary_search(0, len(nums) - 1)
+
+
+print(
+    Solution().search_recursive(
+        [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 13, 16, 17, 19, 20, 21, 30, 42], 21
+    )
+)
+
+"""========================================
+
+Call 1: binary_search(left=0, right=17)
+条件チェック: left(0) <= right(17) → True, 探索継続
+
+mid計算: mid = 0 + (17 - 0) // 2 = 8
+nums[mid] = nums[8] = 10
+
+比較: nums[8] = 10 vs target = 21
+→ 10 < 21 なので elif nums[mid] < target が成立
+
+処理: return binary_search(mid + 1, right) = binary_search(9, 17)
+新しい探索範囲: [11, 13, 16, 17, 19, 20, 21, 30, 42] (右半分)
+
+│  0 │  1 │  2 │  3 │  4 │  5 │  6 │  7 │  8 │  9 │ 10 │ 11 │ 12 │ 13 │ 14 │ 15 │ 16 │ 17 │
+│  1 │  2 │  3 │  4 │  5 │  7 │  8 │  9 │ 10 │ 11 │ 13 │ 16 │ 17 │ 19 │ 20 │ 21 │ 30 │ 42 │
+  L                                       mid                                           R
+
+========================================
+
+Call 2: binary_search(left=9, right=17)
+条件チェック: left(9) <= right(17) → True, 探索継続
+
+mid計算: mid = 9 + (17 - 9) // 2 = 9 + 4 = 13
+nums[mid] = nums[13] = 19
+
+比較: nums[13] = 19 vs target = 21
+→ 19 < 21 なので elif nums[mid] < target が成立
+
+処理: return binary_search(mid + 1, right) = binary_search(14, 17)
+新しい探索範囲: [20, 21, 30, 42] (さらに右半分)
+
+│  0 │  1 │  2 │  3 │  4 │  5 │  6 │  7 │  8 │  9 │ 10 │ 11 │ 12 │ 13 │ 14 │ 15 │ 16 │ 17 │
+│  1 │  2 │  3 │  4 │  5 │  7 │  8 │  9 │ 10 │ 11 │ 13 │ 16 │ 17 │ 19 │ 20 │ 21 │ 30 │ 42 │
+                                                L                  mid                  R
+
+========================================
+
+Call 3: binary_search(left=14, right=17)
+条件チェック: left(14) <= right(17) → True, 探索継続
+
+mid計算: mid = 14 + (17 - 14) // 2 = 14 + 1 = 15
+nums[mid] = nums[15] = 21
+
+比較: nums[15] = 21 vs target = 21
+→ 21 == 21 なので if nums[mid] == target が成立
+
+処理: return mid = 15 (目標値発見!)
+
+│  0 │  1 │  2 │  3 │  4 │  5 │  6 │  7 │  8 │  9 │ 10 │ 11 │ 12 │ 13 │ 14 │ 15 │ 16 │ 17 │
+│  1 │  2 │  3 │  4 │  5 │  7 │  8 │  9 │ 10 │ 11 │ 13 │ 16 │ 17 │ 19 │ 20 │ 21 │ 30 │ 42 │
+                                                                         L  mid         R
+                                                                           FOUND!
+
+========================================
+
+結果: 15 が返される
+Call 3 が 15 を返す → Call 2 が 15 を返す → Call 1 が 15 を返す → 最終的に 15 が返る ✓
 """
