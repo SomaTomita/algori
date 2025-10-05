@@ -18,6 +18,69 @@ Constraints:
 s[i] is a printable ascii character.
 """
 
+
+class TwoPointersSolution:
+    def reverseString(self, s: List[str]) -> None:
+        left, right = 0, len(s) - 1
+
+        while left < right:
+            s[left], s[right] = s[right], s[left]
+            left += 1
+            right -= 1
+
+
+print("=== Two Pointers ===")
+s1 = ["h", "e", "l", "l", "o"]
+TwoPointersSolution().reverseString(s1)
+print(s1)  # ["o","l","l","e","h"]
+
+"""
+Two Pointersの流れ: s = ["h","e","l","l","o"]
+
+初期状態: left=0, right=4
+Index: │ 0 │ 1 │ 2 │ 3 │ 4 │
+Value: │ h │ e │ l │ l │ o │
+        L               R
+
+========================================
+
+Iteration 1: left=0, right=4
+条件: left(0) < right(4) → True
+
+スワップ: s[0] ↔ s[4]
+処理: left=1, right=3
+
+結果: ["o","e","l","l","h"]
+Index: │ 0 │ 1 │ 2 │ 3 │ 4 │
+Value: │ o │ e │ l │ l │ h │
+            L       R
+
+========================================
+
+Iteration 2: left=1, right=3
+条件: left(1) < right(3) → True
+
+スワップ: s[1] ↔ s[3]
+処理: left=2, right=2
+
+結果: ["o","l","l","e","h"]
+Index: │ 0 │ 1 │ 2 │ 3 │ 4 │
+Value: │ o │ l │ l │ e │ h │
+                L,R
+
+========================================
+
+Iteration 3: left=2, right=2
+条件: left(2) < right(2) → False
+while ループ終了
+
+最終結果: ["o","l","l","e","h"] ✓
+========================================
+"""
+
+
+# ------------------------------------------------------------
+
 from typing import List
 
 
