@@ -40,15 +40,16 @@ class Solution:
         return prev
 
 
-Node = ListNode(0, ListNode(1, ListNode(2, ListNode(3))))
+# 注: 変数名は ListNode (クラス) を上書きしないよう head を使う
+head_iter = ListNode(0, ListNode(1, ListNode(2, ListNode(3))))
 # 図解（初期状態）
-# head (=Node) → Node(val=0)
-#   next → Node(val=1)
-#   next → Node(val=2)
-#   next → Node(val=3)
+# head (=head_iter) → ListNode(val=0)
+#   next → ListNode(val=1)
+#   next → ListNode(val=2)
+#   next → ListNode(val=3)
 #   next → None
 
-print(Solution().reverseList(Node))
+print(Solution().reverseList(head_iter))
 
 # 処理の流れ:
 # 初期: prev=None, curr=Node(0)
@@ -112,7 +113,9 @@ class Solution:
         return newHead
 
 
-print(Solution().reverseList_recursive(Node))
+# 再度新しいリストを用意 (前段で反転されてしまっているため)
+head_rec = ListNode(0, ListNode(1, ListNode(2, ListNode(3))))
+print(Solution().reverseList_recursive(head_rec))
 
 # 処理の流れ:
 # 1回目呼び出し: head = Node(0)
@@ -205,9 +208,9 @@ for i in range(5, 0, -1):
 
 # リンクドリスト基礎: 作成と表示
 def create_linked_list():  # 1 → 2 → 3 → None というリンクドリストを作成
-    node1 = Node(1)
-    node2 = Node(2)
-    node3 = Node(3)
+    node1 = ListNode(1)
+    node2 = ListNode(2)
+    node3 = ListNode(3)
 
     # ノードを繋げる
     node1.next = node2
@@ -234,7 +237,7 @@ print_linked_list(head)  # 出力: 1 → 2 → 3 → None
 
 # ノードの追加例
 def add_node(head, val):
-    new_node = Node(val)
+    new_node = ListNode(val)
     if not head:
         return new_node
 
@@ -249,3 +252,30 @@ def add_node(head, val):
 head = add_node(head, 4)
 print("4を追加した後:")
 print_linked_list(head)  # 出力: 1 → 2 → 3 → 4 → None
+
+
+# ------------------------------------------------------------
+# 計算量まとめ
+# ------------------------------------------------------------
+"""
+n = リスト長
+
+反復版 (Solution.reverseList):
+  時間: O(n)  ← 各ノードを 1 回だけ触る
+  空間: O(1)  ← prev, curr, tempNext の 3 変数のみ
+
+再帰版 (Solution.reverseList_recursive):
+  時間: O(n)
+  空間: O(n)  ← 再帰スタックがリストの長さぶん積まれる
+
+配列経由版 (reverseList_list):
+  時間: O(n)
+  空間: O(n)  ← 配列に全ノードを格納するため
+
+ポイント:
+1. 反復版がベストプラクティス。ポインタ 3 本だけで済むので空間 O(1)。
+2. リバースの本質は「各ノードの next を 1 つ前のノードに向け直す」こと。
+   その時点での次ノードを失わないために tempNext で先に退避するのがコツ。
+3. 再帰版は美しいが、長いリストで RecursionError の危険がある (Python のデフォルト深さは 1000)。
+4. 「3 本ポインタ swap」のイディオムは反転以外にも頻出 (循環検出, 再構築 etc.)。
+"""
