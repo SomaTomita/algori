@@ -18,6 +18,8 @@ Constraints:
 s[i] is a printable ascii character.
 """
 
+from typing import List
+
 
 class TwoPointersSolution:
     def reverseString(self, s: List[str]) -> None:
