@@ -134,27 +134,58 @@ class Solution:
             return list2
 
 
-# 流れ:
-# list1 = [1,2,4], list2 = [1,3,5]
-# list1.val < list2.val なので list1を選択
-# list1.next = self.mergeTwoLists_recursive(list1.next, list2)
-# list1.next = self.mergeTwoLists_recursive([2,4], [1,3,5])
-# list1.next.val < list2.val なので list2を選択
-# list1.next.next = self.mergeTwoLists_recursive([2,4], [3,5])
-# list1.next.next.val < list2.val なので list2を選択
-# list1.next.next.next = self.mergeTwoLists_recursive([2,4], [5])
-# list1.next.next.next.val > list2.val なので list2を選択
-# list1.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
-# list1.next.next.next.next.val > list2.val なので list2を選択
-# list1.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
-# list1.next.next.next.next.next.val > list2.val なので list2を選択
-# list1.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
-# list1.next.next.next.next.next.next.val > list2.val なので list2を選択
-# list1.next.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
-# list1.next.next.next.next.next.next.next.val > list2.val なので list2を選択
-# list1.next.next.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
-# list1.next.next.next.next.next.next.next.next.val > list2.val なので list2を選択
-# list1.next.next.next.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
-# list1.next.next.next.next.next.next.next.next.next.val > list2.val なので list2を選択
-# list1.next.next.next.next.next.next.next.next.next.next = self.mergeTwoLists_recursive([2,4], [])
-# 出力: [1,1,2,3,4,5]
+# ------------------------------------------------------------
+# 再帰版の流れ: list1 = [1,2,4], list2 = [1,3,5]
+# ------------------------------------------------------------
+#
+# 呼び出しツリー (上から下へ展開、答えは下から上へ巻き戻る):
+#
+# merge([1,2,4], [1,3,5])
+#   1 < 1 が False なので list2 を選択 → 1(l2).next = merge([1,2,4], [3,5])
+#     1 < 3 True → list1 選択 → 1(l1).next = merge([2,4], [3,5])
+#       2 < 3 True → list1 選択 → 2.next = merge([4], [3,5])
+#         4 < 3 False → list2 選択 → 3.next = merge([4], [5])
+#           4 < 5 True → list1 選択 → 4.next = merge([], [5])
+#             list1 が空 → return list2 (= [5])
+#           ← 4.next = [5] → リスト末尾は 4 → 5
+#         ← 3.next = (4 → 5) → 3 → 4 → 5
+#       ← 2.next = (3 → 4 → 5) → 2 → 3 → 4 → 5
+#     ← 1(l1).next = (2 → 3 → 4 → 5) → 1 → 2 → 3 → 4 → 5
+#   ← 1(l2).next = (1 → 2 → 3 → 4 → 5) → 1 → 1 → 2 → 3 → 4 → 5
+#
+# 最終結果: 1 → 1 → 2 → 3 → 4 → 5
+#
+# ------------------------------------------------------------
+# ベースケース:
+#   - 両方とも None なら None
+#   - 片方だけ None なら残り片方を返す (= "残りを丸ごと連結する" のと同義)
+# 再帰ステップ:
+#   - 小さい方の head を取り、その next に "残り両方をマージした結果" を繋ぐ
+# ------------------------------------------------------------
+
+
+# ------------------------------------------------------------
+# 計算量まとめ
+# ------------------------------------------------------------
+"""
+n = len(l1), m = len(l2)
+
+反復版 (上のクラス):
+  時間: O(n + m) — 各ノードを 1 回ずつ訪れる
+  空間: O(1)     — 既存ノードを繋ぎ替えるだけ。新しいノードは dummy のみ。
+
+再帰版:
+  時間: O(n + m)
+  空間: O(n + m) — 再帰スタック (LeetCode の制約 n+m <= 200 なら安全)
+
+ポイント:
+1. dummy ノードを使うと "結果リストの先頭がまだ決まっていない" 段階で
+   tail の繋ぎ替えが綺麗に書ける。先頭判定の if が要らなくなる典型テク。
+
+2. 反復版は "両方の先頭を比較 → 小さい方を tail に繋ぐ → そっちを 1 個進める"
+   の繰り返し。ループを抜けたら "片方は空、もう片方に残りがある" 状態なので
+   残りをそのまま tail に繋いで終わり。
+
+3. 安定性: 等値の場合 (l1.val == l2.val) は else 側 (l2 優先) になるが、
+   どちらを先にしても結果のソート性は保たれる。
+"""
