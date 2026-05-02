@@ -1,5 +1,8 @@
 package datastructures.Graph;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class Graph {
     private HashMap<String, ArrayList<String>> adjList = new HashMap<>();
 
@@ -12,10 +15,11 @@ public class Graph {
 
     // グラフに新しい頂点（vertex）を追加( { A:[] }的な。 )
     // 将来的にその頂点に隣接する他の頂点を保持するために使用さ
+    // 戻り値: 追加できたら true / 既に存在していたら false
     public boolean addVertex(String vertex) {
         // vertexがまだグラフに追加されていなければ、頂点に隣接する頂点が追加。
         if(adjList.get(vertex) == null){
-            adjList.put(vertex, new ArrrayList<String>());
+            adjList.put(vertex, new ArrayList<String>());
             return true;
         }
         return false;
