@@ -1,4 +1,7 @@
+package datastructures.Heap;
 
+import java.util.ArrayList;
+import java.util.List;
 
 public class Heap {
     // リストはヒープデータ構造を表現しており、完全二分木の形
@@ -44,13 +47,15 @@ public class Heap {
         int current = heap.size() - 1;
 
         // currentインデックスが0以上(root出ない場合)　・　currentインデックスにあるvalueがparentより大きい場合ループする。
-        while (current > 0　&& heap.get(current) > heap.get(parent(current))) {
+        // heap up: 親より大きければ親と swap して上昇。最大ヒープなら最終的に root に到達できるかも。
+        while (current > 0 && heap.get(current) > heap.get(parent(current))) {
             swap(current, parent(current));
             // swapされたらaddしたvalueをインデックスで追跡。
             current = parent(current);
         }
     }
 
+    // heap down: 自分より大きい子があれば swap して下降。remove() で root を末尾と入れ替えた後に使う。
     public void sinkDown(int index) {
         int maxIndex = index;
         while (true) {

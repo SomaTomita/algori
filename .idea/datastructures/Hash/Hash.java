@@ -1,5 +1,7 @@
 package datastructures.Hash;
 
+import java.util.ArrayList;
+
 public class Hash {
     private int size = 7;
     private Node[] dataMap;
@@ -17,7 +19,8 @@ public class Hash {
     }
 
     public Hash() {
-        dataMap = newNode[size];
+        // 内部配列を size 分のスロットで確保 (新しい "Node 配列" を作る → "newNode" の typo に注意)
+        dataMap = new Node[size];
     }
 
     // キーが"cat"の場合のhashメソッドの動作を考えてみよう。
@@ -64,14 +67,15 @@ public class Hash {
         Node temp = dataMap[index];
         // tempがnullになるまで、つまりリストの最後まで繰り返す。
         while (temp != null) {
-            if (temp.key == key) return temp.value;
+            // 文字列比較は == ではなく .equals() を使う (== は参照比較で偽陰性が出る)
+            if (temp.key.equals(key)) return temp.value;
             temp = temp.next;
         }
         return 0;
     }
 
 
-    public ArrayList keys() {
+    public ArrayList<String> keys() {
         ArrayList<String> allKeys = new ArrayList<>();
         for (int i = 0; i < dataMap.length; i++) {
             Node temp = dataMap[i];
