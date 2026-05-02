@@ -36,10 +36,11 @@ public class Tree {
                     temp.left = newNode;
                     return true;
                 }
-                // もし左がnull出なかった時は、tempを日だしにづらす。
+                // もし左が null でなかった時は、temp を左にずらす。
                 temp = temp.left;
             } else {
-                if (temp.next == null) {
+                // BST の Node に next フィールドは無い → 右に進む条件は temp.right が null か
+                if (temp.right == null) {
                     temp.right = newNode;
                     return true;
                 }

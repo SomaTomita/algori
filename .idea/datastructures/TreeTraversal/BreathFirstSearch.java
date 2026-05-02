@@ -1,4 +1,10 @@
-public class BinarySearchTree {
+package datastructures.TreeTraversal;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class BreathFirstSearch {
 
     public Node root;
 
@@ -58,10 +64,12 @@ public class BinarySearchTree {
 
 
 
-    // BST: Breadth First Search = rowごとに見ていく。
+    // BFS: Breadth First Search = rowごとに見ていく。
+    // FIFO の Queue で「親 → 兄弟 → 子」の順で訪問する。
     public ArrayList<Integer> BFS() {
         Node currentNode = root;
-        Queue<Node> queue = new ArrayList<>();
+        // ArrayList は Queue インターフェースを実装していないので LinkedList を使う
+        Queue<Node> queue = new LinkedList<>();
         ArrayList<Integer> results = new ArrayList<>();
         queue.add(currentNode);
 
