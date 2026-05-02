@@ -1,4 +1,7 @@
-public class BinarySearchTree {
+package datastructures.Recursion;
+
+// クラス名はファイル名 RucursiveBinarySearchTrees に揃える (ファイル名は変えない方針)
+public class RucursiveBinarySearchTrees {
 
     private Node root;
 
@@ -58,7 +61,9 @@ public class BinarySearchTree {
 
 
     // callstack
-    private boolean rContains(Node currnetNode, int value) {
+    // 再帰版 contains: 木を root から順に下っていき、見つかったら true で巻き戻る
+    private boolean rContains(Node currentNode, int value) {
+        // ベースケース: 末端まで辿り着いても見つからなかった
         if (currentNode == null) return false;
 
         // 現在のノード（currentNode）の値が検索している値（value）に等しければtrue
