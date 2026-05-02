@@ -14,7 +14,8 @@ public class stack {
     private Node top;
     private int height;
 
-    public Stack(int value) {
+    // コンストラクタ名はクラス名 stack に合わせる必要がある
+    public stack(int value) {
         Node newNode = new Node(value);
         top = newNode;
         height = 1;
@@ -59,6 +60,7 @@ public class stack {
 
     public void push(int value){
         Node newNode = new Node(value);
+        // スタックが空なら top に直接置く
         if(height ==  0) {
             top = newNode;
         } else {
@@ -66,7 +68,8 @@ public class stack {
             newNode.next = top;
             top = newNode;
         }
-        length++;
+        // フィールド名は height (length ではない)
+        height++;
     }
 
     public Node pop() {

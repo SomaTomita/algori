@@ -70,9 +70,11 @@ public class Queue {
 
 
 
+    // 末尾(last)に新ノードを繋いで last を更新 (FIFO の "in")
     public void enqueue(int value) {
         Node newNode = new Node(value);
         if (length == 0) {
+            // 空キューなら first/last を同じノードに
             first = newNode;
             last = newNode;
         } else {
@@ -82,14 +84,17 @@ public class Queue {
         length++;
     }
 
+    // 先頭(first)を取り出して first を 1 つ進める (FIFO の "out")
     public Node dequeue() {
         if (length == 0) return null;
         Node temp = first;
         if (length == 1) {
+            // 唯一のノードを取ったら空キュー
             first = null;
             last = null;
         } else {
             first = first.next;
+            // 取り出したノードを残りのキューから切り離す
             temp.next = null;
         }
         length--;

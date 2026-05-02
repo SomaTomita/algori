@@ -198,12 +198,14 @@ public class LinkedList {
     }
 
     public void reverse() {
+       // head と tail を先に入れ替えておく → 後はループで矢印を逆向きにするだけ
        Node temp = head;
        head = tail;
        tail = temp;
        Node after = temp.next;
        Node before = null;
        for (int i = 0; i < length; i++) {
+           // 次のノードを退避してから temp.next を before に向け直す (1, 2, 3 → null, 1, 2)
            after = temp.next;
            // 矢印を逆に向けるイメージ
            temp.next = before;

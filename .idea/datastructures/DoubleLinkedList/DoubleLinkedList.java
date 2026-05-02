@@ -91,7 +91,9 @@ public class DoubleLinkedList {
             head = newNode;
             tail = newNode;
         } else {
+            // 新しいノードを既存の先頭の前に繋ぐ (双方向なので prev も忘れずに張る)
             newNode.next = head;
+            head.prev = newNode;
             head = newNode;
         }
         length++;
@@ -166,7 +168,8 @@ public class DoubleLinkedList {
 
 
     public Node remove(int index){
-        if (index > 0 || index >+length) return null;
+        // 範囲外なら null を返す ( 0 <= index < length が有効 )
+        if (index < 0 || index >= length) return null;
         if (index == 0) return removeFirst();
         if (index == length - 1) return removeLast();
 
