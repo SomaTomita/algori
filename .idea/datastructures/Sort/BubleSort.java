@@ -1,19 +1,31 @@
+package datastructures.Sort;
 
-public static void bubleSort(int[] array) {
-    // 配列の末尾から開始して配列の先頭に向かって繰り返し（配列の2番目の要素まで継続）
-    for (int i = array.length - 1; i > 0; i--) {
-        // jがiより小さい間 (jが未ソート部分の末尾に達していない間)
-        for (int j = 0; j < i; j++) {
-            // j番目の要素がj+1番目の要素より大きい時、それらの位置を交換
-            if (array[j] > array[j+1]) {
-                // 配列の先頭からtempとする。
-                int temp = array[j];
-                // 後ろの数を前に
-                array[j] = array[j+1];
-                // 後ろの数を前に
-                arrau[j+1] = temp;
+import java.util.Arrays;
+
+public class BubleSort {
+
+    public static void bubleSort(int[] array) {
+        // 配列の末尾から開始して配列の先頭に向かって繰り返し（配列の2番目の要素まで継続）
+        for (int i = array.length - 1; i > 0; i--) {
+            // jがiより小さい間 (jが未ソート部分の末尾に達していない間)
+            for (int j = 0; j < i; j++) {
+                // j番目の要素がj+1番目の要素より大きい時、それらの位置を交換
+                if (array[j] > array[j + 1]) {
+                    // 配列の先頭からtempとする。
+                    int temp = array[j];
+                    // 後ろの数を前に
+                    array[j] = array[j + 1];
+                    // 一時保存しておいた前の数を後ろに (元の typo "arrau" を array に修正)
+                    array[j + 1] = temp;
+                }
             }
         }
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {3, 1, 4, 1, 5};
+        bubleSort(arr);
+        System.out.println(Arrays.toString(arr));
     }
 }
 
@@ -29,8 +41,7 @@ public static void bubleSort(int[] array) {
 
 
 
-// i < i　とは
+// j < i　とは
 // 配列が [5, 3, 2, 4, 1] で、ある時点で i = 3 とします。このとき、j < i の条件は
 // j < 3 を意味し、jが 0, 1, 2 の場合に内側のループが実行され、
 // インデックス 3 の要素（この例では 4）はすでに適切な位置にあるか、もしくは次の反復で適切な位置に移動されることを意味
-

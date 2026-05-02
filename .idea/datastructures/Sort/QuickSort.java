@@ -1,7 +1,10 @@
+package datastructures.Sort;
+
 import java.util.Arrays;
 
 
-public class Main {
+// public class はファイル名と一致させる必要があるため、Main → QuickSort に修正
+public class QuickSort {
 
     private static void swap(int[] array, int firstIndex, int secondIndex) {
         int temp = array[firstIndex];
