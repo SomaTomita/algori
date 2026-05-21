@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Foundations Quiz — メモリ / 配列 / 文字列 / Set / ループ / Big-O</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --ink: #0f172a;
+        --muted: #475569;
+        --line: #e2e8f0;
+        --accent: #4f46e5;
+        --accent-soft: #eef2ff;
+        --good: #059669;
+        --good-soft: #ecfdf5;
+        --bad: #dc2626;
+        --bad-soft: #fef2f2;
+        --warn: #d97706;
+        --warn-soft: #fffbeb;
+      }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-feature-settings: "cv11", "ss01";
+        background: var(--bg);
+        color: var(--ink);
+      }
+      .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.22rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+      .pill-accent { background: var(--accent-soft); color: var(--accent); }
+      .pill-good   { background: var(--good-soft); color: var(--good); }
+      .pill-bad    { background: var(--bad-soft); color: var(--bad); }
+      .pill-warn   { background: var(--warn-soft); color: var(--warn); }
+      .pill-mute   { background: #f1f5f9; color: var(--muted); }
+
+      /* topic colors */
+      .topic-memory { background: #ede9fe; color: #6d28d9; }
+      .topic-array  { background: #dbeafe; color: #1d4ed8; }
+      .topic-string { background: #fce7f3; color: #be185d; }
+      .topic-set    { background: #d1fae5; color: #047857; }
+      .topic-loop   { background: #fef3c7; color: #92400e; }
+      .topic-bigo   { background: #fee2e2; color: #b91c1c; }
+
+      pre.code {
+        background: #0b1220;
+        color: #e2e8f0;
+        border-radius: 12px;
+        padding: 0.95rem 1.05rem;
+        overflow-x: auto;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.86rem;
+        line-height: 1.65;
+      }
+      .tok-k { color: #c084fc; }
+      .tok-s { color: #6ee7b7; }
+      .tok-n { color: #fbbf24; }
+      .tok-c { color: #64748b; font-style: italic; }
+      .tok-f { color: #60a5fa; }
+
+      .choice {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        padding: 0.95rem 1.1rem;
+        border: 1.5px solid var(--line);
+        border-radius: 12px;
+        background: white;
+        cursor: pointer;
+        transition: border-color 160ms, background 160ms, transform 120ms;
+        text-align: left;
+        width: 100%;
+      }
+      .choice:hover:not(:disabled) {
+        border-color: var(--accent);
+        background: #f8fafc;
+      }
+      .choice:active:not(:disabled) { transform: scale(0.99); }
+      .choice .key {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.78rem;
+        background: #f1f5f9;
+        color: var(--muted);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .choice.correct {
+        border-color: var(--good);
+        background: var(--good-soft);
+      }
+      .choice.correct .key { background: var(--good); color: white; }
+      .choice.wrong {
+        border-color: var(--bad);
+        background: var(--bad-soft);
+      }
+      .choice.wrong .key { background: var(--bad); color: white; }
+      .choice.disabled { cursor: default; opacity: 0.7; }
+      .choice.disabled.correct { opacity: 1; }
+      .choice.disabled.wrong { opacity: 1; }
+
+      .filter-btn {
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        background: white;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 160ms;
+      }
+      .filter-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .filter-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+      }
+
+      .progress-wrap {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1, #4f46e5);
+        border-radius: 999px;
+        transition: width 320ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+        font-weight: 600;
+        padding: 0.7rem 1.4rem;
+        border-radius: 10px;
+        transition: background 160ms, transform 100ms;
+      }
+      .btn-primary:hover { background: #4338ca; }
+      .btn-primary:active { transform: scale(0.98); }
+      .btn-primary:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+      }
+      .btn-ghost {
+        color: var(--muted);
+        font-weight: 500;
+        padding: 0.7rem 1.1rem;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: white;
+        transition: all 160ms;
+      }
+      .btn-ghost:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .explanation {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 0.9rem 1.1rem;
+        border-radius: 8px;
+        font-size: 0.92rem;
+        line-height: 1.6;
+        color: #1e293b;
+      }
+      .explanation.good { border-left-color: var(--good); background: var(--good-soft); }
+      .explanation.bad  { border-left-color: var(--bad);  background: var(--bad-soft); }
+
+      .stat-card {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 1.1rem 1.2rem;
+      }
+      .topic-bar {
+        height: 10px;
+        background: #f1f5f9;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .topic-bar > div {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .slide-in { animation: slideIn 280ms cubic-bezier(0.4, 0, 0.2, 1); }
+
+      .kbd {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        background: white;
+        border: 1px solid var(--line);
+        border-bottom-width: 2px;
+        border-radius: 6px;
+        padding: 0.1rem 0.42rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <!-- HEADER -->
+      <header class="mb-6">
+        <div class="flex items-center justify-between mb-2">
+          <span class="pill pill-accent">Foundations Quiz</span>
+          <span class="text-xs text-slate-500 mono" id="meta">0 / 0</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">
+          基礎を声に出して答える
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">
+          メモリ / 配列 / 文字列 / Set / ループ / Big-O — 全
+          <span id="totalQ" class="mono font-semibold text-slate-700">0</span>
+          問。回答後に解説が出る。
+        </p>
+      </header>
+
+      <!-- TOPIC FILTER -->
+      <div id="filterBar" class="flex flex-wrap gap-2 mb-4">
+        <button class="filter-btn active" data-topic="all">All</button>
+        <button class="filter-btn" data-topic="memory">Memory</button>
+        <button class="filter-btn" data-topic="array">Array</button>
+        <button class="filter-btn" data-topic="string">String</button>
+        <button class="filter-btn" data-topic="set">Set</button>
+        <button class="filter-btn" data-topic="loop">Loop</button>
+        <button class="filter-btn" data-topic="bigo">Big-O</button>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="mb-6">
+        <div class="progress-wrap">
+          <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-slate-500 mt-2 mono">
+          <span><span id="answeredCount">0</span> answered</span>
+          <span><span id="correctCount">0</span> correct</span>
+        </div>
+      </div>
+
+      <!-- QUIZ AREA -->
+      <main id="quizArea"></main>
+
+      <!-- RESULT AREA -->
+      <section id="resultArea" class="hidden"></section>
+
+      <!-- FOOTER NAV -->
+      <div class="mt-6 flex items-center justify-between gap-3">
+        <button id="prevBtn" class="btn-ghost" disabled>← Prev</button>
+        <div class="text-xs text-slate-500 mono hidden sm:block">
+          <span class="kbd">1</span><span class="kbd">2</span
+          ><span class="kbd">3</span><span class="kbd">4</span> 選択
+          &nbsp;·&nbsp; <span class="kbd">→</span> 次へ
+        </div>
+        <button id="nextBtn" class="btn-primary" disabled>Next →</button>
+      </div>
+
+      <!-- RETRY (after finish) -->
+      <div id="retryRow" class="mt-6 flex justify-center hidden">
+        <button id="retryBtn" class="btn-primary">もう一度</button>
+      </div>
+
+      <footer class="mt-12 text-center text-xs text-slate-400">
+        From <span class="mono">vscode/basic/00_foundations</span>
+      </footer>
+    </div>
+
+    <script>
+      // ============================================================
+      // QUESTION BANK
+      // topic: memory | array | string | set | loop | bigo
+      // type:  mcq (default) — choices array, answer index, explain string
+      // ============================================================
+      const QUESTIONS = [
+        // ---------- MEMORY ----------
+        {
+          topic: "memory",
+          q: "RAM の正式名称は?",
+          choices: [
+            "Read-Access Memory",
+            "Random-Access Memory",
+            "Rapid-Access Memory",
+            "Reserved-Address Memory",
+          ],
+          answer: 1,
+          explain:
+            "Random Access Memory。どのアドレスにも同じ時間でアクセスできるのが特徴 (シーケンシャル必須なテープ等と対比)。",
+        },
+        {
+          topic: "memory",
+          q: "速い順に並べたとき、正しいのは?",
+          choices: [
+            "RAM > CPU Cache > SSD",
+            "CPU Cache > RAM > SSD/HDD",
+            "SSD > RAM > CPU Cache",
+            "RAM > SSD > CPU Cache",
+          ],
+          answer: 1,
+          explain:
+            "CPU Cache (数ナノ秒) → RAM (数十ナノ秒) → SSD/HDD (ミリ秒)。桁が違うほどの差がある。",
+        },
+        {
+          topic: "memory",
+          q: "int 型の連続配列で arr[5] にアクセスする時間計算量は?",
+          choices: ["O(1)", "O(log n)", "O(n)", "サイズによって変わる"],
+          answer: 0,
+          explain:
+            "アドレス = base + index × element_size の 1 回計算で行ける。これが配列が速い理由。",
+        },
+
+        // ---------- ARRAY ----------
+        {
+          topic: "array",
+          q: "Python の list / array.array / numpy.ndarray のうち、内部が「単一型の C 配列」なのは?",
+          choices: [
+            "list だけ",
+            "array.array と numpy.ndarray",
+            "numpy.ndarray だけ",
+            "全部同じ実装",
+          ],
+          answer: 1,
+          explain:
+            "list は任意型のポインタを並べる構造。array.array と numpy.ndarray は型固定の C 配列で省メモリ。numpy はさらに SIMD/BLAS で爆速。",
+        },
+        {
+          topic: "array",
+          q: "size n の配列の真ん中に要素を 1 つ挿入する平均計算量は?",
+          choices: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+          answer: 2,
+          explain:
+            "挿入位置から後ろを 1 つずつ右にシフトする必要がある → O(n)。同じ理由で任意位置の削除も O(n)。",
+        },
+        {
+          topic: "array",
+          q: "list.append() のアモータイズド計算量と、瞬間的な最悪計算量の組み合わせとして正しいのは?",
+          choices: [
+            "アモータイズド O(n) / 最悪 O(n)",
+            "アモータイズド O(1) / 最悪 O(1)",
+            "アモータイズド O(1) / 最悪 O(n)",
+            "アモータイズド O(log n) / 最悪 O(n)",
+          ],
+          answer: 2,
+          explain:
+            "通常は末尾に書くだけで O(1)。容量が尽きたときだけ「2倍確保 + 全コピー」が走り瞬間 O(n)。ならして O(1) になる。",
+        },
+        {
+          topic: "array",
+          q: "matrix[i][j] を行優先 (i 外, j 内) で走査するのが速い理由は?",
+          choices: [
+            "メモリが連続でアクセスされ CPU キャッシュに乗りやすいから",
+            "Python が行優先で最適化されているから",
+            "i のループの方が常に短いから",
+            "j のインデックス計算が乗算を使わないから",
+          ],
+          answer: 0,
+          explain:
+            "C 言語系 / numpy はメモリが行方向に連続。ストライドが小さいほど cache hit 率が上がる。列優先で走査すると cache miss 多発。",
+        },
+        {
+          topic: "array",
+          q: "Prefix Sum 配列 prefix[i] = arr[0..i-1] の和 を持っているとき、sum(arr[L..R]) はいくつ?",
+          choices: [
+            "prefix[R] - prefix[L]",
+            "prefix[R+1] - prefix[L]",
+            "prefix[R] - prefix[L-1]",
+            "prefix[R+1] - prefix[L+1]",
+          ],
+          answer: 1,
+          explain:
+            "prefix[R+1] には arr[0..R] の和が入っている。そこから arr[0..L-1] = prefix[L] を引けば arr[L..R] の和。範囲和が O(1)。",
+        },
+        {
+          topic: "array",
+          q: "ソート済み arr=[1,2,3,4,5,6] で和 = 9 のペアを two-pointer で探すとき、L=0,R=5 → 1+6=7 < 9 の次の動きは?",
+          choices: [
+            "R を 1 つ減らす",
+            "L を 1 つ増やす",
+            "L,R を両方動かす",
+            "二分探索に切り替える",
+          ],
+          answer: 1,
+          explain:
+            "和が target より小さい → 大きくしたい → 小さい側 (L) を進める。target より大きいなら R を減らす。これで O(n)。",
+        },
+        {
+          topic: "array",
+          q: "「3 回 reverse で配列を k 個右回転する」手順として正しいのは?",
+          choices: [
+            "全体 → 後半 → 前半 を reverse",
+            "全体 → 前半 → 後半 を reverse",
+            "前半 → 後半 → 全体 を reverse",
+            "後半 → 前半 → 全体 を reverse",
+          ],
+          answer: 1,
+          explain:
+            "reverse(0, n-1) → reverse(0, k-1) → reverse(k, n-1)。これで O(n)/O(1) で右回転。",
+        },
+        {
+          topic: "array",
+          q: "in-place reverse として正しい Python は?",
+          choices: [
+            "arr = arr[::-1]",
+            "for i in range(len(arr)//2): arr[i], arr[~i] = arr[~i], arr[i]",
+            "arr = list(reversed(arr))",
+            "arr.copy().reverse()",
+          ],
+          answer: 1,
+          explain:
+            "arr[::-1] や list(reversed(arr)) は O(n) の追加メモリ。両端を swap する方法だけが追加メモリ O(1) の真の in-place。~i は -i-1 と同じで末尾から数えるトリック。",
+        },
+
+        // ---------- STRING ----------
+        {
+          topic: "string",
+          q: "Python / Java など多くの言語で文字列の特徴は?",
+          choices: [
+            "可変 (mutable) で in-place 編集できる",
+            "不変 (immutable) で書き換えに見えても新しいオブジェクトが作られる",
+            "char 配列の参照のみ持っていて中身は GC が管理",
+            "OS のページテーブルに直接マップされる",
+          ],
+          answer: 1,
+          explain:
+            "ほぼすべての主要言語で文字列は immutable。s += '!' は古い文字列を捨てて新しい文字列を作っている。",
+        },
+        {
+          topic: "string",
+          q: "次のループの計算量は?\n\nresult = ''\nfor c in chars:  # len(chars) = N\n    result += c",
+          choices: ["O(N)", "O(N log N)", "O(N²)", "O(2^N)"],
+          answer: 2,
+          explain:
+            "文字列は immutable なので += のたびに長さ i の文字列をまるごとコピーする。0+1+2+…+N = O(N²)。N が大きいと一気に死ぬ典型バグ。",
+        },
+        {
+          topic: "string",
+          q: "上の += 結合を高速化する正しい書き方は?",
+          choices: [
+            "result = ''.join([c for c in chars])  または  parts.append + ''.join",
+            "result += を try/except で囲む",
+            "文字列を bytes に変換してから連結する",
+            "for ループを while に書き換える",
+          ],
+          answer: 0,
+          explain:
+            "list は append が O(1)。最後に ''.join() でまとめて O(N) コピーするので合計 O(N)。これが定石。",
+        },
+
+        // ---------- SET ----------
+        {
+          topic: "set",
+          q: "set の `x in s` の平均計算量は?",
+          choices: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+          answer: 0,
+          explain:
+            "内部はハッシュテーブル。平均 O(1) で超高速。最悪はハッシュ衝突で O(n) になる点も覚えておくと面接で強い。",
+        },
+        {
+          topic: "set",
+          q: "次のうち set ができないのは?",
+          choices: [
+            "重複の自動排除",
+            "x in s の高速判定",
+            "index でのアクセス s[0]",
+            "和集合 a | b",
+          ],
+          answer: 2,
+          explain:
+            "set は順序なし・重複なしの集合。index アクセスはできない。順序や index が必要なら list、key/value なら dict。",
+        },
+        {
+          topic: "set",
+          q: "「単語ごとの出現回数を数えたい」とき、set / dict / list のどれを使うべき?",
+          choices: ["set", "dict (または collections.Counter)", "list", "tuple"],
+          answer: 1,
+          explain:
+            "set は値だけ覚える。出現回数 = key + value のペアが必要なので dict。Counter なら +1 を 1 行で書ける。",
+        },
+
+        // ---------- LOOP ----------
+        {
+          topic: "loop",
+          q: "「index と 値 の両方が欲しい」ときに最も Pythonic な書き方は?",
+          choices: [
+            "for i in range(len(arr)): x = arr[i]",
+            "for i, x in enumerate(arr):",
+            "for x in arr:",
+            "for a, b in zip(arr, arr):",
+          ],
+          answer: 1,
+          explain:
+            "enumerate(arr) が一番素直で速い。range(len(arr)) は冗長。配列を直接書き換える必要がある時くらいしか出番がない。",
+        },
+        {
+          topic: "loop",
+          q: "while ループでよく起こるバグは?",
+          choices: [
+            "型推論の失敗",
+            "ポインタやカウンタの更新忘れによる無限ループ",
+            "メモリリーク",
+            "GC の停止",
+          ],
+          answer: 1,
+          explain:
+            "two-pointer や binary search で while l < r: の中で l/r を動かし忘れる → 無限ループ。手で 1 ステップ追うクセが効く。",
+        },
+        {
+          topic: "loop",
+          q: "「ほとんどのインタビュー問題は何の組み合わせ?」",
+          choices: [
+            "再帰 + メモ化 + DP",
+            "ループ + 条件 + 変数更新",
+            "スレッド + ロック + キュー",
+            "I/O + パース + 正規表現",
+          ],
+          answer: 1,
+          explain:
+            "8 割以上の問題はこの 3 つに帰着する。難問に見えても「どこを走査して、どう分岐して、何を更新するか」を分解すれば道筋が見える。",
+        },
+
+        // ---------- BIG-O ----------
+        {
+          topic: "bigo",
+          q: "ソート済み配列の binary search の計算量は?",
+          choices: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+          answer: 1,
+          explain:
+            "毎ステップで探索範囲が半分になるので log₂ n 回で終わる。`while l <= r: mid = (l+r)//2` の典型形。",
+        },
+        {
+          topic: "bigo",
+          q: "Python の arr.sort() (Timsort) の計算量は?",
+          choices: ["O(n)", "O(n log n)", "O(n²)", "O(2^n)"],
+          answer: 1,
+          explain:
+            "merge sort / quick sort / Timsort はすべて O(n log n)。比較ベースのソートは情報理論的にこれが下限。",
+        },
+        {
+          topic: "bigo",
+          q: "競プロで N ≤ 10^5 のとき、安全に通る目安の計算量は?",
+          choices: ["O(N²) でも余裕", "O(N log N) まで", "O(N!) でも OK", "O(2^N) まで"],
+          answer: 1,
+          explain:
+            "N=10^5 で N² = 10^10 → 1 秒では絶対に終わらない。N log N ≒ 1.7×10^6 なら余裕。N=10^5 を見たら sliding window / hashmap / 二分探索 / sort + greedy を疑う。",
+        },
+        {
+          topic: "bigo",
+          q: "次のコードの計算量は?\n\nfor i in range(n):\n    for j in range(n):\n        if arr[i] + arr[j] == 0:\n            return True",
+          choices: ["O(n)", "O(n log n)", "O(n²)", "O(2^n)"],
+          answer: 2,
+          explain:
+            "二重ループの典型。N が 10^4 を超えたら別解 (set で補数を探す → O(n)) を考える合図。",
+        },
+        {
+          topic: "bigo",
+          q: "素朴な再帰 fib(n) = fib(n-1) + fib(n-2) の計算量は?",
+          choices: ["O(n)", "O(n log n)", "O(n²)", "O(2^n)"],
+          answer: 3,
+          explain:
+            "毎呼び出しで 2 つに枝分かれする → 計算木のノード数 ≒ 2^n。メモ化を入れると O(n) に落ちる (DP の入口)。",
+        },
+        {
+          topic: "bigo",
+          q: "in-place で two-pointer (l, r を動かすだけ) で配列を反転するとき、追加で使うメモリは?",
+          choices: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+          answer: 0,
+          explain:
+            "ポインタ 2 本と一時変数だけ。配列をコピーすれば O(n) になるが、in-place なら O(1)。空間計算量も口に出すクセを。",
+        },
+      ];
+
+      // ============================================================
+      // STATE
+      // ============================================================
+      const TOPIC_LABEL = {
+        memory: "Memory",
+        array: "Array",
+        string: "String",
+        set: "Set",
+        loop: "Loop",
+        bigo: "Big-O",
+      };
+
+      const state = {
+        filter: "all",
+        order: [],   // indices into QUESTIONS, after filter+shuffle
+        cursor: 0,
+        answers: {}, // questionIndex -> chosenIndex (or null)
+      };
+
+      // ============================================================
+      // RENDER HELPERS
+      // ============================================================
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function buildOrder() {
+        const indices = QUESTIONS.map((_, i) => i).filter(
+          (i) => state.filter === "all" || QUESTIONS[i].topic === state.filter
+        );
+        state.order = shuffle(indices);
+        state.cursor = 0;
+        state.answers = {};
+      }
+
+      function escapeHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function formatQuestion(text) {
+        // multi-line questions render code in a block
+        if (text.includes("\n")) {
+          const parts = text.split("\n\n");
+          if (parts.length === 2) {
+            return `<p class="text-base sm:text-lg font-semibold leading-relaxed mb-3">${escapeHtml(
+              parts[0]
+            )}</p><pre class="code">${escapeHtml(parts[1])}</pre>`;
+          }
+        }
+        return `<p class="text-base sm:text-lg font-semibold leading-relaxed">${escapeHtml(
+          text
+        )}</p>`;
+      }
+
+      function topicPill(topic) {
+        return `<span class="pill topic-${topic}">${TOPIC_LABEL[topic]}</span>`;
+      }
+
+      // ============================================================
+      // RENDER QUIZ
+      // ============================================================
+      const elQuiz = document.getElementById("quizArea");
+      const elResult = document.getElementById("resultArea");
+      const elProgress = document.getElementById("progressBar");
+      const elAnswered = document.getElementById("answeredCount");
+      const elCorrect = document.getElementById("correctCount");
+      const elMeta = document.getElementById("meta");
+      const elTotalQ = document.getElementById("totalQ");
+      const elPrev = document.getElementById("prevBtn");
+      const elNext = document.getElementById("nextBtn");
+      const elRetryRow = document.getElementById("retryRow");
+      const elRetry = document.getElementById("retryBtn");
+
+      function render() {
+        if (state.order.length === 0) {
+          elQuiz.innerHTML = `
+            <div class="card p-8 text-center slide-in">
+              <p class="text-slate-500">このトピックには問題がない。</p>
+            </div>`;
+          elNext.disabled = true;
+          elPrev.disabled = true;
+          updateStats();
+          return;
+        }
+
+        if (state.cursor >= state.order.length) {
+          renderResult();
+          return;
+        }
+
+        elQuiz.classList.remove("hidden");
+        elResult.classList.add("hidden");
+        elRetryRow.classList.add("hidden");
+
+        const qIdx = state.order[state.cursor];
+        const q = QUESTIONS[qIdx];
+        const chosen = state.answers[qIdx];
+        const answered = chosen !== undefined;
+
+        const choicesHtml = q.choices
+          .map((c, i) => {
+            const isCorrect = i === q.answer;
+            const isChosen = i === chosen;
+            let cls = "choice";
+            if (answered) {
+              cls += " disabled";
+              if (isCorrect) cls += " correct";
+              else if (isChosen) cls += " wrong";
+            }
+            const keyLabel = String(i + 1);
+            return `
+              <button class="${cls}" data-choice="${i}" ${
+                answered ? "disabled" : ""
+              }>
+                <span class="key">${keyLabel}</span>
+                <span class="flex-1">${escapeHtml(c)}</span>
+              </button>`;
+          })
+          .join("");
+
+        let explainHtml = "";
+        if (answered) {
+          const right = chosen === q.answer;
+          const cls = right ? "explanation good" : "explanation bad";
+          const head = right
+            ? `<strong class="text-emerald-700">正解</strong>`
+            : `<strong class="text-rose-700">不正解</strong> — 正解は <span class="mono font-bold">${
+                q.answer + 1
+              }</span>`;
+          explainHtml = `
+            <div class="${cls} mt-4 slide-in">
+              ${head}<br/>${escapeHtml(q.explain)}
+            </div>`;
+        }
+
+        elQuiz.innerHTML = `
+          <article class="card p-6 sm:p-8 slide-in">
+            <div class="flex items-center justify-between mb-4">
+              ${topicPill(q.topic)}
+              <span class="text-xs text-slate-400 mono">Q ${
+                state.cursor + 1
+              } / ${state.order.length}</span>
+            </div>
+            <div class="mb-5">${formatQuestion(q.q)}</div>
+            <div class="grid gap-2.5">${choicesHtml}</div>
+            ${explainHtml}
+          </article>
+        `;
+
+        // wire choice clicks
+        elQuiz.querySelectorAll("[data-choice]").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const idx = parseInt(e.currentTarget.dataset.choice, 10);
+            if (state.answers[qIdx] !== undefined) return;
+            state.answers[qIdx] = idx;
+            render();
+          });
+        });
+
+        elPrev.disabled = state.cursor === 0;
+        elNext.disabled = !answered;
+        elNext.textContent =
+          state.cursor === state.order.length - 1 ? "結果を見る →" : "Next →";
+        updateStats();
+      }
+
+      function updateStats() {
+        const answeredCount = Object.keys(state.answers).length;
+        const correctCount = Object.entries(state.answers).filter(
+          ([qi, ci]) => QUESTIONS[qi].answer === ci
+        ).length;
+        elAnswered.textContent = answeredCount;
+        elCorrect.textContent = correctCount;
+        elMeta.textContent = `${state.cursor + 1} / ${state.order.length}`;
+        elTotalQ.textContent = state.order.length;
+        const pct =
+          state.order.length === 0
+            ? 0
+            : ((state.cursor + (state.answers[state.order[state.cursor]] !== undefined ? 1 : 0)) /
+                state.order.length) *
+              100;
+        elProgress.style.width = `${Math.min(100, pct)}%`;
+      }
+
+      // ============================================================
+      // RESULT
+      // ============================================================
+      function renderResult() {
+        elQuiz.classList.add("hidden");
+        elResult.classList.remove("hidden");
+        elRetryRow.classList.remove("hidden");
+        elNext.disabled = true;
+        elPrev.disabled = false;
+
+        const total = state.order.length;
+        const correct = state.order.filter(
+          (qi) => state.answers[qi] === QUESTIONS[qi].answer
+        ).length;
+        const pct = total === 0 ? 0 : Math.round((correct / total) * 100);
+
+        // per-topic breakdown
+        const byTopic = {};
+        state.order.forEach((qi) => {
+          const t = QUESTIONS[qi].topic;
+          byTopic[t] = byTopic[t] || { total: 0, correct: 0 };
+          byTopic[t].total++;
+          if (state.answers[qi] === QUESTIONS[qi].answer) byTopic[t].correct++;
+        });
+
+        const topicColors = {
+          memory: "#7c3aed",
+          array: "#2563eb",
+          string: "#db2777",
+          set: "#059669",
+          loop: "#d97706",
+          bigo: "#dc2626",
+        };
+
+        const topicHtml = Object.entries(byTopic)
+          .map(([t, v]) => {
+            const p = v.total === 0 ? 0 : (v.correct / v.total) * 100;
+            return `
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <span class="pill topic-${t}">${TOPIC_LABEL[t]}</span>
+                  <span class="text-xs mono text-slate-500">${v.correct} / ${v.total}</span>
+                </div>
+                <div class="topic-bar">
+                  <div style="width:${p}%; background:${topicColors[t]}"></div>
+                </div>
+              </div>`;
+          })
+          .join("");
+
+        // missed questions
+        const missed = state.order
+          .filter((qi) => state.answers[qi] !== QUESTIONS[qi].answer)
+          .slice(0, 8)
+          .map((qi) => {
+            const q = QUESTIONS[qi];
+            return `
+              <details class="card p-4">
+                <summary class="cursor-pointer flex items-center gap-2 text-sm">
+                  ${topicPill(q.topic)}
+                  <span class="text-slate-700">${escapeHtml(
+                    q.q.split("\n")[0].slice(0, 70)
+                  )}${q.q.split("\n")[0].length > 70 ? "…" : ""}</span>
+                </summary>
+                <div class="mt-3 pl-1 text-sm">
+                  <p class="font-semibold mb-1">正解: <span class="text-emerald-700">${escapeHtml(
+                    q.choices[q.answer]
+                  )}</span></p>
+                  <p class="text-slate-600 leading-relaxed">${escapeHtml(
+                    q.explain
+                  )}</p>
+                </div>
+              </details>`;
+          })
+          .join("");
+
+        const grade =
+          pct >= 90
+            ? { label: "Excellent", cls: "pill-good", emoji: "★" }
+            : pct >= 75
+            ? { label: "Strong", cls: "pill-accent", emoji: "◆" }
+            : pct >= 50
+            ? { label: "Keep Going", cls: "pill-warn", emoji: "▲" }
+            : { label: "Review Needed", cls: "pill-bad", emoji: "●" };
+
+        elResult.innerHTML = `
+          <div class="card p-7 sm:p-9 slide-in">
+            <div class="flex items-center justify-between mb-5">
+              <span class="pill ${grade.cls}">${grade.emoji} ${grade.label}</span>
+              <span class="text-xs text-slate-500 mono">Result</span>
+            </div>
+            <div class="text-center mb-7">
+              <div class="text-6xl sm:text-7xl font-extrabold tracking-tight" style="color: var(--accent)">
+                ${pct}<span class="text-3xl text-slate-400">%</span>
+              </div>
+              <p class="mt-2 text-slate-600 mono text-sm">
+                ${correct} / ${total} 正解
+              </p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wide">
+              Topic Breakdown
+            </h3>
+            <div class="grid gap-3 mb-7">${topicHtml}</div>
+
+            ${
+              missed
+                ? `
+              <h3 class="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wide">
+                Review (${state.order.filter(
+                  (qi) => state.answers[qi] !== QUESTIONS[qi].answer
+                ).length} 問)
+              </h3>
+              <div class="grid gap-2">${missed}</div>`
+                : `<div class="card p-5 text-center text-emerald-700 font-semibold">
+                  全問正解。完全に身についている。
+                </div>`
+            }
+          </div>
+        `;
+        updateStats();
+      }
+
+      // ============================================================
+      // EVENTS
+      // ============================================================
+      document.querySelectorAll("#filterBar .filter-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll("#filterBar .filter-btn")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          state.filter = btn.dataset.topic;
+          buildOrder();
+          render();
+        });
+      });
+
+      elPrev.addEventListener("click", () => {
+        if (state.cursor > 0) {
+          state.cursor--;
+          render();
+        }
+      });
+
+      elNext.addEventListener("click", () => {
+        if (state.cursor < state.order.length) {
+          state.cursor++;
+          render();
+        }
+      });
+
+      elRetry.addEventListener("click", () => {
+        buildOrder();
+        render();
+      });
+
+      // keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        if (e.target.matches("input, textarea")) return;
+        const qIdx = state.order[state.cursor];
+        if (qIdx === undefined) return;
+        const q = QUESTIONS[qIdx];
+        if (!q) return;
+
+        if (e.key >= "1" && e.key <= "9") {
+          const idx = parseInt(e.key, 10) - 1;
+          if (idx < q.choices.length && state.answers[qIdx] === undefined) {
+            state.answers[qIdx] = idx;
+            render();
+          }
+        } else if (e.key === "ArrowRight" || e.key === "Enter") {
+          if (!elNext.disabled) {
+            state.cursor++;
+            render();
+          }
+        } else if (e.key === "ArrowLeft") {
+          if (state.cursor > 0) {
+            state.cursor--;
+            render();
+          }
+        }
+      });
+
+      // INIT
+      buildOrder();
+      render();
+    </script>
+  </body>
+</html>
