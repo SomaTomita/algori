@@ -56,6 +56,43 @@ def bfs_graph(start, get_neighbors):
 
 ---
 
+## `deque([root])` の中身 — 入るのは「1 個」だけ
+
+まず誤解しやすい点: `root = [3, 9, 20, null, null, 15, 7]` は **木の形を表す LeetCode の表記**であって、コード内に存在するリストではない。実際の `root` は **TreeNode オブジェクト 1 個**(val=3)で、残りのノードは `.left` / `.right` でぶら下がっているだけ。
+
+```
+root = TreeNode(3)
+  ├─ .left  = TreeNode(9)
+  └─ .right = TreeNode(20)
+                ├─ .left  = TreeNode(15)
+                └─ .right = TreeNode(7)
+```
+
+だから `deque([root])` で入るのは **root ノード 1 個だけ**(7 個ではない)。
+
+```python
+[root]          # → [ <TreeNode val=3> ]          要素 1 個のリスト (root を包んだだけ)
+q = deque([root])
+len(q)          # → 1     (3,9,20,... の 7 個じゃない!)
+q[0].val        # → 3     中身は root ノード 1 個。ここから木全体に手が届く
+```
+
+9,20,15,7 は最初 `q` に入っていない。BFS の最中に `q.append(node.left)` などで少しずつ追加される(外ループ 1 で 9,20、外ループ 2 で 15,7)。
+
+### `[ ]` が必須な理由(罠)
+
+`deque(iterable)` は「iterable の中身を 1 個ずつ入れる」仕様。
+
+```python
+deque([3, 9, 20])  # 中身を展開 → int が 3 個入る
+deque([root])      # 中身を展開 → root ノード 1 個入る   ← これが今回 (OK)
+deque(root)        # TypeError! TreeNode は反復可能でないので展開できず死ぬ (NG)
+```
+
+つまり `[root]` の角カッコは「root を 1 要素のリストで包んで、BFS の出発点を 1 個セットする」ための必須要素。`deque(root)` と書くとエラーになる。
+
+---
+
 ## ポイント: visited に追加するタイミング
 
 **enqueue 時** (キューに入れる瞬間) に `visited` へ追加する。
