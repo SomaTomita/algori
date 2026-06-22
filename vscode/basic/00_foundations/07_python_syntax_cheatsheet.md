@@ -41,18 +41,18 @@ seen: set[int] = set() # アノテーション有り (意図が読みやすい)
 
 ### 1-4. よく出る型の一覧
 
-| 書き方 | 意味 | 初期化例 |
-|---|---|---|
-| `x: int` | 整数 | `x: int = 0` |
-| `x: float` | 浮動小数点 | `x: float = 0.0` |
-| `x: str` | 文字列 | `x: str = ""` |
-| `x: bool` | 真偽値 | `x: bool = False` |
-| `xs: list[int]` | int のリスト | `xs: list[int] = []` |
-| `xs: tuple[int, int]` | (int, int) のタプル | `xs: tuple[int, int] = (0, 0)` |
-| `s: set[int]` | int の集合 | `s: set[int] = set()` |
-| `d: dict[str, int]` | キー: str / 値: int の辞書 | `d: dict[str, int] = {}` |
-| `x: int \| None` | int か None (どちらでも可) | `x: int \| None = None` |
-| `f: Callable[[int], int]` | int を受け取り int を返す関数 | `f = lambda x: x + 1` |
+| 書き方                    | 意味                          | 初期化例                       |
+| ------------------------- | ----------------------------- | ------------------------------ |
+| `x: int`                  | 整数                          | `x: int = 0`                   |
+| `x: float`                | 浮動小数点                    | `x: float = 0.0`               |
+| `x: str`                  | 文字列                        | `x: str = ""`                  |
+| `x: bool`                 | 真偽値                        | `x: bool = False`              |
+| `xs: list[int]`           | int のリスト                  | `xs: list[int] = []`           |
+| `xs: tuple[int, int]`     | (int, int) のタプル           | `xs: tuple[int, int] = (0, 0)` |
+| `s: set[int]`             | int の集合                    | `s: set[int] = set()`          |
+| `d: dict[str, int]`       | キー: str / 値: int の辞書    | `d: dict[str, int] = {}`       |
+| `x: int \| None`          | int か None (どちらでも可)    | `x: int \| None = None`        |
+| `f: Callable[[int], int]` | int を受け取り int を返す関数 | `f = lambda x: x + 1`          |
 
 > **メモ**: `set[int]` のような書き方は **Python 3.9 以降**。それより古いと `Set[int]` (`from typing import Set`) を使う。LeetCode は 3.10+ なので新記法でOK。
 
@@ -246,6 +246,7 @@ evens = [x for x in range(10) if x % 2 == 0]
 ```
 
 等価な for ループ:
+
 ```python
 squares = []
 for x in range(5):
@@ -263,32 +264,45 @@ d = {x: x * x for x in range(5)}   # dict 内包表記
 
 ---
 
-## 7. アルゴリズム頻出の「3 大コンテナ」早見表
+## 7. アルゴリズム頻出コンテナ早見表 (3 大 + BFS の deque + top-k の heapq)
 
-| コンテナ | 初期化 | 追加 | 存在チェック | 削除 | 用途 |
-|---|---|---|---|---|---|
-| `list` | `xs: list[int] = []` | `xs.append(v)` | `v in xs` (O(N)) | `xs.pop()` / `xs.remove(v)` | 順序あり、index アクセス |
-| `set` | `s: set[int] = set()` | `s.add(v)` | `v in s` (O(1)) | `s.discard(v)` | 存在チェック・重複除去 |
-| `dict` | `d: dict[str, int] = {}` | `d[k] = v` | `k in d` (O(1)) | `del d[k]` | キーから値を引く (二点和など) |
+| コンテナ | 初期化                   | 追加           | 存在チェック     | 削除                        | 用途                          |
+| -------- | ------------------------ | -------------- | ---------------- | --------------------------- | ----------------------------- |
+| `list`   | `xs: list[int] = []`     | `xs.append(v)` | `v in xs` (O(N)) | `xs.pop()` / `xs.remove(v)` | 順序あり、index アクセス      |
+| `set`    | `s: set[int] = set()`    | `s.add(v)`     | `v in s` (O(1))  | `s.discard(v)`              | 存在チェック・重複除去        |
+| `dict`   | `d: dict[str, int] = {}` | `d[k] = v`     | `k in d` (O(1))  | `del d[k]`                  | キーから値を引く (二点和など) |
+| `deque`  | `q: deque[int] = deque()` | `q.append(v)`  | `v in q` (O(N))  | `q.popleft()` (O(1))        | BFS のキュー (先入れ先出し)   |
+| `heapq`  | `h: list[int] = []`       | `heappush(h,v)`| `v in h` (O(N))  | `heappop(h)` (O(log N))     | top-k・優先度順 (Dijkstra)    |
+
+> **deque**: `from collections import deque` で import する。初期値ありは `deque([root])` のように iterable を渡す (空なら `deque()`)。
+> 型注釈は `q: deque[TreeNode]` のように中身の型を書く。
+> list でも `append` / `pop` はできるが、先頭取り出し `list.pop(0)` は **O(N)** (全要素が左に詰め直される)。
+> front を **O(1)** で抜きたい BFS では `deque.popleft()` を使うのが定石。
+
+> **heapq**: `import heapq` で import する。専用の型は無く **list をそのまま heap として扱う** (だから初期化は `[]`、型注釈も `list[int]`)。
+> **min heap がデフォルト**。`heappush(h, v)` / `heappop(h)` で常に**最小**が出る。覗くだけなら `h[0]` で **O(1)**。
+> max heap が欲しい時は **符号を反転**して入れる: `heappush(h, -v)` → 取り出しは `-heapq.heappop(h)`。タプルなら `(-priority, payload)`。
+> 既存 list の一括 heap 化は `heapq.heapify(h)` で **O(N)** (全部 sort するより速い)。
+> `v in h` が **O(N)** なのは中身がただの list だから。heap は「最小を速く出す」専用で、**任意要素の検索は速くない** (そこは set/dict の役目)。詳細は `../08_heaps_priority_queues/README.md`。
 
 ---
 
 ## 8. つまずきやすい記法まとめ
 
-| 書き方 | 意味 | 「あ、これか」のヒント |
-|---|---|---|
-| `seen: set[int] = set()` | int の空 set | `set()` でなく `{}` だと dict になる罠注意 |
-| `cnt: dict[int, int] = {}` | int→int の空 dict | `{}` は空 dict、`set()` は空 set |
-| `range(n)` | 0 から n-1 まで | n は **含まない** |
-| `range(1, n)` | 1 から n-1 まで | 最初を 0 でなく 1 にしたい時 |
-| `range(n-1, -1, -1)` | n-1 から 0 まで逆順 | 最後の `-1` が「終端の手前」になるので必要 |
-| `enumerate(xs)` | (index, value) のペア | `for i, x in ...` で受ける |
-| `zip(a, b)` | 2 つを並走 | 長さが違うと短い方で止まる |
-| `for _ in range(n)` | n 回繰り返すだけ | 変数を使わないことの宣言 |
-| `nums[i:j]` | i から j-1 までの部分配列 | コピーが作られるので O(N) |
-| `nums[::-1]` | 逆順コピー | スライスの 3 番目が step |
-| `*rest` (関数引数) | 残り全部を集める | `def f(a, *rest)` |
-| `**kwargs` | キーワード引数を集める | `def f(**kw)` |
+| 書き方                     | 意味                      | 「あ、これか」のヒント                     |
+| -------------------------- | ------------------------- | ------------------------------------------ |
+| `seen: set[int] = set()`   | int の空 set              | `set()` でなく `{}` だと dict になる罠注意 |
+| `cnt: dict[int, int] = {}` | int→int の空 dict         | `{}` は空 dict、`set()` は空 set           |
+| `range(n)`                 | 0 から n-1 まで           | n は**含まない**                           |
+| `range(1, n)`              | 1 から n-1 まで           | 最初を 0 でなく 1 にしたい時               |
+| `range(n-1, -1, -1)`       | n-1 から 0 まで逆順       | 最後の `-1` が「終端の手前」になるので必要 |
+| `enumerate(xs)`            | (index, value) のペア     | `for i, x in ...` で受ける                 |
+| `zip(a, b)`                | 2 つを並走                | 長さが違うと短い方で止まる                 |
+| `for _ in range(n)`        | n 回繰り返すだけ          | 変数を使わないことの宣言                   |
+| `nums[i:j]`                | i から j-1 までの部分配列 | コピーが作られるので O(N)                  |
+| `nums[::-1]`               | 逆順コピー                | スライスの 3 番目が step                   |
+| `*rest` (関数引数)         | 残り全部を集める          | `def f(a, *rest)`                          |
+| `**kwargs`                 | キーワード引数を集める    | `def f(**kw)`                              |
 
 ---
 
@@ -308,6 +322,7 @@ def two_sum(nums: list[int], target: int) -> list[int]:
 ```
 
 読めるべきポイント:
+
 - `list[int]`, `dict[int, int]` の型の意味
 - `enumerate(nums)` で index と値を取る
 - `in seen` で O(1) チェック
