@@ -151,6 +151,76 @@ def permute_swap(nums: List[int]) -> List[List[int]]:
 
 
 # ----------------------------------------------------------------------
+# 【コールスタック版】 nums=[1,2,3] を「潜る(呼ぶ)/戻る(return)」で追う
+#   generate_strings.py と同じ骨格。違いは「選択肢 = まだ使ってない数」で、
+#   used[] フラグで「同じ数の二度使い」を skip する点だけ。
+# ----------------------------------------------------------------------
+"""
+nums=[1,2,3], n=3。current=[] used=[F,F,F] で backtrack(0) を呼ぶところから。
+used は [nums[0],nums[1],nums[2]] が使用中かのフラグ。F=未使用 T=使用中。
+
+depth 0: backtrack(0)  current=[] used=[F,F,F]
+         len=0 ≠ 3 → for i in 0..2
+         ┌─ i=0: used[0]=T, append → current=[1]       ……choose 1
+         │  backtrack(1) ───┐  ★潜る
+         │                   │
+depth 1: │  backtrack(1) ◀──┘  current=[1] used=[T,F,F]
+         │  i=0: used[0]=T → skip   ← used の効果（1 を二度使わない）
+         │  ┌─ i=1: used[1]=T, append → current=[1,2]  ……choose 2
+         │  │  backtrack(2) ───┐  ★潜る
+         │  │                   │
+depth 2: │  │  backtrack(2) ◀──┘  current=[1,2] used=[T,T,F]
+         │  │  i=0 skip, i=1 skip
+         │  │  i=2: used[2]=T, append → current=[1,2,3] ……choose 3
+         │  │  backtrack(3) ───┐  ★潜る
+         │  │                   │
+depth 3: │  │  backtrack(3) ◀──┘  current=[1,2,3]
+         │  │  len==3 成立！ result に [1,2,3] 記録       ……✓完成
+         │  │  return ─────────┐  ★戻る
+         │  │                   │
+depth 2: │  │  pop 3, used[2]=F ◀┘ → current=[1,2]       ……unchoose 3
+         │  │  for 尽きた → return ─┐  ★戻る
+         │  │                        │
+depth 1: │  pop 2, used[1]=F ◀──────┘ → current=[1]      ……unchoose 2
+         │  └─ i=2: used[2]=T, append → current=[1,3]    ……choose 3
+         │     backtrack(2) ───┐  ★潜る
+         │                      │
+depth 2: │     backtrack(2) ◀──┘  current=[1,3] used=[T,F,T]
+         │     i=0 skip
+         │     i=1: used[1]=T, append → [1,3,2]          ……choose 2
+         │     backtrack(3) → [1,3,2] 記録 → return        ……✓完成
+         │     pop 2, used[1]=F → current=[1,3]          ……unchoose 2
+         │     i=2: used[2]=T → skip
+         │     for 尽きた → return
+depth 1: │  (backtrack(1) 終了) return ─┐  ★戻る
+         │                              │
+depth 0: │  pop 1, used[0]=F ◀──────────┘ → current=[]   ……unchoose 1
+         │  (i=0 の枝 終わり → [1,2,3],[1,3,2] が出た)
+         ├─ i=1: append → current=[2] used=[F,T,F]        ……choose 2
+         │   → 同じ形を一段潜って [2,1,3],[2,3,1] を記録 → pop 2 → []
+         └─ i=2: append → current=[3] used=[F,F,T]        ……choose 3
+             → 同じ形で [3,1,2],[3,2,1] を記録 → pop 3 → []
+         for 尽きた → backtrack(0) 終了
+
+→ return result = [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+
+----------------------------------------------------------------
+読み方の軸 3 つ:
+
+(1) ★潜る(呼ぶ) と ★戻る(return) は必ずペア。generate_strings と同じ。
+    ✓完成 で return → 戻った先で pop(unchoose) という流れも同じ。
+
+(2) generate_strings との唯一の違いは used[]。
+    「次に置けるのは まだ使ってない数 だけ」なので、for の頭で
+    `if used[i]: continue` で使用中の数を飛ばす。これが順列(N!)を作る要。
+    choose で used[i]=True、unchoose で used[i]=False に必ず戻す。
+
+(3) current.append と used[i]=True は1セット、current.pop と used[i]=False も1セット。
+    片方だけ戻すと状態がズレて順列が欠ける。
+"""
+
+
+# ----------------------------------------------------------------------
 # Permutations vs Subsets (姉妹問題の違い)
 # ----------------------------------------------------------------------
 #
